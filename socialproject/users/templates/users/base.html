@@ -1,0 +1,70 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Photo App{% endblock %}</title>
+    <script>
+        (function () {
+            try {
+                var savedTheme = localStorage.getItem("photo-theme");
+                var prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+                document.documentElement.dataset.theme = savedTheme || (prefersDark ? "dark" : "light");
+            } catch (error) {
+                document.documentElement.dataset.theme = "light";
+            }
+        })();
+    </script>
+    <link rel="stylesheet" href="{% static 'users/styles.css'%}">
+    <link rel="stylesheet" href="{% static 'users/style.css'%}">
+    <script src="{% static 'users/app.js' %}" defer></script>
+</head>
+<body>
+    <nav class="topbar" aria-label="Primary navigation">
+        <div class="topbar__inner">
+            <a class="brand" href="{% if user.is_authenticated %}{% url 'feed' %}{% else %}{% url 'login' %}{% endif %}">
+                <img class="brand__mark" src="{% static 'users/images/instagram.svg'%}" alt="">
+                <span>Photo App</span>
+            </a>
+
+            <div class="nav-list">
+                {% if user.is_authenticated %}
+                    <form class="nav-search" action="{% url 'search_users' %}" method="get">
+                        <input type="search" name="q" value="{{ request.GET.q }}" placeholder="Search people" aria-label="Search usernames">
+                        <button type="submit">Search</button>
+                    </form>
+                    <a class="nav-link" href="{% url 'feed' %}">Feed</a>
+                    <a class="nav-link" href="{% url 'create' %}">Create</a>
+                    <a class="nav-link" href="{% url 'search_users' %}">Discover</a>
+                    <a class="nav-link" href="{% url 'index' %}">My Posts</a>
+                    <a class="nav-link" href="{% url 'edit' %}">Profile</a>
+                    <form action="{% url 'logout' %}" method="post">
+                        {% csrf_token %}
+                        <button class="nav-link nav-link--button" type="submit">Logout</button>
+                    </form>
+                {% else %}
+                    <a class="nav-link" href="{% url 'login' %}">Login</a>
+                    <a class="button-primary button-primary--small" href="{% url 'register' %}">Register</a>
+                {% endif %}
+                <button class="theme-toggle" type="button" data-theme-toggle aria-label="Switch color theme">
+                    <span data-theme-label>Dark</span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    {% if messages %}
+        <div class="messages" aria-live="polite">
+            {% for message in messages %}
+                <p class="message message--{{ message.tags|default:'info' }}">{{ message }}</p>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <main>
+        {% block body %}
+        {% endblock %}
+    </main>
+</body>
+</html>

@@ -1,0 +1,72 @@
+{% extends "users/base.html" %}
+
+{% block title %}Edit Profile | Photo App{% endblock %}
+
+{% block body %}
+<section class="page-shell page-shell--narrow">
+    <header class="page-header">
+        <p class="eyebrow">Profile</p>
+        <h1>Edit your profile</h1>
+        <p>Keep your name, email, and profile photo up to date.</p>
+    </header>
+
+    <form class="surface-form" method="post" enctype="multipart/form-data" data-busy-form>
+        {% csrf_token %}
+
+        {% if user_form.non_field_errors or profile_form.non_field_errors %}
+            <div class="form-errors">
+                {{ user_form.non_field_errors }}
+                {{ profile_form.non_field_errors }}
+            </div>
+        {% endif %}
+
+        <div class="form-row">
+            <label for="{{ user_form.first_name.id_for_label }}">First name</label>
+            {{ user_form.first_name }}
+            {% for error in user_form.first_name.errors %}
+                <p class="form-error">{{ error }}</p>
+            {% endfor %}
+        </div>
+
+        <div class="form-row">
+            <label for="{{ user_form.last_name.id_for_label }}">Last name</label>
+            {{ user_form.last_name }}
+            {% for error in user_form.last_name.errors %}
+                <p class="form-error">{{ error }}</p>
+            {% endfor %}
+        </div>
+
+        <div class="form-row">
+            <label for="{{ user_form.email.id_for_label }}">Email</label>
+            {{ user_form.email }}
+            {% for error in user_form.email.errors %}
+                <p class="form-error">{{ error }}</p>
+            {% endfor %}
+        </div>
+
+        <div class="form-row">
+            <label for="{{ profile_form.photo.id_for_label }}">Profile photo</label>
+            {{ profile_form.photo }}
+            {% for error in profile_form.photo.errors %}
+                <p class="form-error">{{ error }}</p>
+            {% endfor %}
+            <div class="image-preview-shell">
+                <img data-image-preview alt="Selected profile photo preview" hidden>
+            </div>
+        </div>
+
+        <div class="form-row">
+            <label for="{{ profile_form.bio.id_for_label }}">Bio</label>
+            {{ profile_form.bio }}
+            {% for error in profile_form.bio.errors %}
+                <p class="form-error">{{ error }}</p>
+            {% endfor %}
+        </div>
+
+        <div class="form-actions">
+            <a class="button-ghost" href="{% url 'index' %}">Cancel</a>
+            <button type="submit" class="button-primary">Save profile</button>
+        </div>
+    </form>
+</section>
+{% endblock %}

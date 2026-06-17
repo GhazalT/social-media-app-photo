@@ -1,0 +1,12 @@
+{% extends 'users/base.html' %}
+
+{% block title %}Logged Out | Photo App{% endblock %}
+
+{% block body %}
+<section class="status-shell">
+    <p class="eyebrow">Signed out</p>
+    <h1>You have been logged out</h1>
+    <p>Your session is closed. You can log back in whenever you are ready.</p>
+    <a class="button-primary" href="{% url 'login' %}">Login</a>
+</section>
+{% endblock %}

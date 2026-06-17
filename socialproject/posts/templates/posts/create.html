@@ -1,0 +1,55 @@
+{% extends "users/base.html" %}
+
+{% block title %}Create Post | Photo App{% endblock %}
+
+{% block body %}
+<section class="page-shell page-shell--narrow">
+    <header class="page-header">
+        <p class="eyebrow">Share</p>
+        <h1>Create a post</h1>
+        <p>Upload a photo, add a title, and give it a caption.</p>
+    </header>
+
+    <form method="post" class="surface-form" enctype="multipart/form-data" data-busy-form>
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+            <div class="form-errors">
+                {{ form.non_field_errors }}
+            </div>
+        {% endif %}
+
+        <div class="form-row">
+            <label for="{{ form.title.id_for_label }}">Title</label>
+            {{ form.title }}
+            {% for error in form.title.errors %}
+                <p class="form-error">{{ error }}</p>
+            {% endfor %}
+        </div>
+
+        <div class="form-row">
+            <label for="{{ form.image.id_for_label }}">Photo</label>
+            {{ form.image }}
+            {% for error in form.image.errors %}
+                <p class="form-error">{{ error }}</p>
+            {% endfor %}
+            <div class="image-preview-shell">
+                <img data-image-preview alt="Selected photo preview" hidden>
+            </div>
+        </div>
+
+        <div class="form-row">
+            <label for="{{ form.caption.id_for_label }}">Caption</label>
+            {{ form.caption }}
+            {% for error in form.caption.errors %}
+                <p class="form-error">{{ error }}</p>
+            {% endfor %}
+        </div>
+
+        <div class="form-actions">
+            <a class="button-ghost" href="{% url 'feed' %}">Cancel</a>
+            <button type="submit" class="button-primary">Publish</button>
+        </div>
+    </form>
+</section>
+{% endblock %}

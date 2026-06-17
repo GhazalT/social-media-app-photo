@@ -1,0 +1,78 @@
+{% extends 'users/base.html' %}
+
+{% block title %}Register | Photo App{% endblock %}
+
+{% block body %}
+<section class="auth-shell">
+    <div class="auth-copy">
+        <p class="eyebrow">Join in</p>
+        <h1>Create your Photo App account</h1>
+        <p>Save your profile, post photos, find other people, and join the conversation.</p>
+    </div>
+
+    <form method="post" class="surface-form auth-form" data-busy-form>
+        {% csrf_token %}
+
+        {% if user_form.non_field_errors %}
+            <div class="form-errors">
+                {{ user_form.non_field_errors }}
+            </div>
+        {% endif %}
+
+        <div class="form-row">
+            <label for="{{ user_form.email.id_for_label }}">Email</label>
+            {{ user_form.email }}
+            {% for error in user_form.email.errors %}
+                <p class="form-error">{{ error }}</p>
+            {% endfor %}
+        </div>
+
+        <div class="form-row">
+            <label for="{{ user_form.username.id_for_label }}">Username</label>
+            {{ user_form.username }}
+            {% for error in user_form.username.errors %}
+                <p class="form-error">{{ error }}</p>
+            {% endfor %}
+        </div>
+
+        <div class="form-row">
+            <label for="{{ user_form.first_name.id_for_label }}">First name</label>
+            {{ user_form.first_name }}
+            {% for error in user_form.first_name.errors %}
+                <p class="form-error">{{ error }}</p>
+            {% endfor %}
+        </div>
+
+        <div class="form-row">
+            <label for="{{ user_form.last_name.id_for_label }}">Last name</label>
+            {{ user_form.last_name }}
+            {% for error in user_form.last_name.errors %}
+                <p class="form-error">{{ error }}</p>
+            {% endfor %}
+        </div>
+
+        <div class="form-row">
+            <label for="{{ user_form.password.id_for_label }}">Password</label>
+            {{ user_form.password }}
+            {% for error in user_form.password.errors %}
+                <p class="form-error">{{ error }}</p>
+            {% endfor %}
+        </div>
+
+        <div class="form-row">
+            <label for="{{ user_form.password2.id_for_label }}">Confirm password</label>
+            {{ user_form.password2 }}
+            {% for error in user_form.password2.errors %}
+                <p class="form-error">{{ error }}</p>
+            {% endfor %}
+        </div>
+
+        <button class="button-primary button-primary--full" type="submit">Create account</button>
+
+        <p class="form-footnote">
+            Already have an account?
+            <a href="{% url 'login' %}">Login</a>
+        </p>
+    </form>
+</section>
+{% endblock %}

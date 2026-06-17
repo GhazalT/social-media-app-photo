@@ -1,0 +1,92 @@
+{% extends 'users/base.html' %}
+{% load static %}
+
+{% block title %}{{ profile_user.username }} | Photo App{% endblock %}
+
+{% block body %}
+<section class="page-shell">
+    <header class="public-profile">
+        <div class="profile-summary">
+            {% if profile.photo %}
+                <img class="profile-summary__photo" src="{{ profile.photo.url }}" alt="{{ profile_user.username }} profile photo">
+            {% else %}
+                <span class="profile-summary__photo profile-summary__photo--fallback" aria-hidden="true">{{ profile_user.username|first|upper }}</span>
+            {% endif %}
+            <div>
+                <p class="eyebrow">Creator profile</p>
+                <h1>{{ profile_user.username }}</h1>
+                {% if profile_user.get_full_name %}
+                    <p>{{ profile_user.get_full_name }}</p>
+                {% endif %}
+                {% if profile.bio %}
+                    <p>{{ profile.bio }}</p>
+                {% endif %}
+                <dl class="profile-stats">
+                    <div>
+                        <dt>{{ posts|length }}</dt>
+                        <dd>Posts</dd>
+                    </div>
+                    <div>
+                        <dt data-followers-count>{{ followers_count }}</dt>
+                        <dd>Followers</dd>
+                    </div>
+                    <div>
+                        <dt>{{ following_count }}</dt>
+                        <dd>Following</dd>
+                    </div>
+                </dl>
+            </div>
+        </div>
+        <div class="header-actions">
+            {% if request.user == profile_user %}
+                <a class="button-secondary" href="{% url 'edit' %}">Edit profile</a>
+            {% else %}
+                <form action="{% url 'toggle_follow' profile_user.username %}" method="post" data-follow-form>
+                    {% csrf_token %}
+                    <button class="button-primary {% if is_following %}button-primary--muted{% endif %}" type="submit" data-follow-button>
+                        {% if is_following %}Following{% else %}Follow{% endif %}
+                    </button>
+                </form>
+                <a class="button-secondary" href="{% url 'search_users' %}">Back to discover</a>
+            {% endif %}
+        </div>
+    </header>
+
+    <section>
+        <div class="section-heading">
+            <h2>Posts</h2>
+        </div>
+        <div class="post-grid">
+            {% for post in posts %}
+                <article class="post-tile">
+                    <img src="{{ post.image.url }}" alt="{{ post.title }}">
+                    <div class="post-tile__body">
+                        <h2>{{ post.title }}</h2>
+                        {% if post.caption %}
+                            <p>{{ post.caption|truncatechars:120 }}</p>
+                        {% endif %}
+                        {% if request.user == post.user %}
+                            <form
+                                class="post-tile__actions"
+                                action="{% url 'post_delete' post.id %}"
+                                method="post"
+                                data-delete-form
+                                data-confirm-message="Delete this post? This cannot be undone."
+                            >
+                                {% csrf_token %}
+                                <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                                <button class="button-danger" type="submit">Delete</button>
+                            </form>
+                        {% endif %}
+                    </div>
+                </article>
+            {% empty %}
+                <div class="empty-state">
+                    <h2>No posts yet</h2>
+                    <p>{{ profile_user.username }} has not shared any photos.</p>
+                </div>
+            {% endfor %}
+        </div>
+    </section>
+</section>
+{% endblock %}

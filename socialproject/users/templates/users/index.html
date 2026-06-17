@@ -1,0 +1,77 @@
+{% extends 'users/base.html' %}
+{% load static %}
+
+{% block title %}My Posts | Photo App{% endblock %}
+
+{% block body %}
+<section class="page-shell">
+    <header class="page-header page-header--split">
+        <div class="profile-summary">
+            {% if profile.photo %}
+                <img class="profile-summary__photo" src="{{ profile.photo.url }}" alt="{{ user.username }} profile photo">
+            {% else %}
+                <span class="profile-summary__photo profile-summary__photo--fallback" aria-hidden="true">{{ user.username|first|upper }}</span>
+            {% endif %}
+            <div>
+                <p class="eyebrow">Profile</p>
+                <h1>{{ user.username }}</h1>
+                {% if profile.bio %}
+                    <p>{{ profile.bio }}</p>
+                {% else %}
+                    <p>{{ posts|length }} post{{ posts|length|pluralize }} shared.</p>
+                {% endif %}
+                <dl class="profile-stats">
+                    <div>
+                        <dt>{{ posts|length }}</dt>
+                        <dd>Posts</dd>
+                    </div>
+                    <div>
+                        <dt>{{ followers_count }}</dt>
+                        <dd>Followers</dd>
+                    </div>
+                    <div>
+                        <dt>{{ following_count }}</dt>
+                        <dd>Following</dd>
+                    </div>
+                </dl>
+            </div>
+        </div>
+        <div class="header-actions">
+            <a class="button-secondary" href="{% url 'profile_detail' user.username %}">View public profile</a>
+            <a class="button-secondary" href="{% url 'edit' %}">Edit profile</a>
+            <a class="button-primary" href="{% url 'create' %}">New post</a>
+        </div>
+    </header>
+
+    <div class="post-grid">
+        {% for post in posts %}
+            <article class="post-tile">
+                <img src="{{ post.image.url }}" alt="{{ post.title }}">
+                    <div class="post-tile__body">
+                        <h2>{{ post.title }}</h2>
+                        {% if post.caption %}
+                            <p>{{ post.caption|truncatechars:120 }}</p>
+                        {% endif %}
+                        <form
+                            class="post-tile__actions"
+                            action="{% url 'post_delete' post.id %}"
+                            method="post"
+                            data-delete-form
+                            data-confirm-message="Delete this post? This cannot be undone."
+                        >
+                            {% csrf_token %}
+                            <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                            <button class="button-danger" type="submit">Delete</button>
+                        </form>
+                    </div>
+                </article>
+        {% empty %}
+            <div class="empty-state">
+                <h2>You have not posted yet</h2>
+                <p>Your photos will appear here after you publish them.</p>
+                <a class="button-primary" href="{% url 'create' %}">Create your first post</a>
+            </div>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}

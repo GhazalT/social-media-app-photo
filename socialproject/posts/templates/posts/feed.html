@@ -1,0 +1,157 @@
+{% extends 'users/base.html' %}
+{% load static %}
+
+{% block title %}Feed | Photo App{% endblock %}
+
+{% block body %}
+<section class="page-shell">
+    <header class="page-header page-header--split">
+        <div>
+            <p class="eyebrow">Community</p>
+            <h1>Latest posts</h1>
+            <p>Fresh photos from everyone in your circle.</p>
+        </div>
+        <a class="button-primary" href="{% url 'create' %}">New post</a>
+    </header>
+
+    <div class="feed-layout">
+        {% for post in posts %}
+            <article class="post-card" id="post-{{ post.id }}">
+                <header class="post-card__header">
+                    <a class="author-lockup" href="{% url 'profile_detail' post.user.username %}">
+                        {% if post.user.profile.photo %}
+                            <img class="avatar" src="{{ post.user.profile.photo.url }}" alt="{{ post.user.username }} profile photo">
+                        {% else %}
+                            <span class="avatar avatar--fallback" aria-hidden="true">{{ post.user.username|first|upper }}</span>
+                        {% endif %}
+                        <div>
+                            <p class="author-name">{{ post.user.username }}</p>
+                            <p class="post-date">{{ post.created|date:"M j, Y" }}</p>
+                        </div>
+                    </a>
+                    {% if post.user == logged_user %}
+                        <form
+                            class="post-delete-form"
+                            action="{% url 'post_delete' post.id %}"
+                            method="post"
+                            data-delete-form
+                            data-confirm-message="Delete this post? This cannot be undone."
+                        >
+                            {% csrf_token %}
+                            <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                            <button class="button-danger" type="submit">Delete</button>
+                        </form>
+                    {% endif %}
+                </header>
+
+                <div class="post-media">
+                    <img src="{{ post.image.url }}" alt="{{ post.title }}">
+                </div>
+
+                <div class="post-card__body">
+                    <div class="post-actions" aria-label="Post actions">
+                        <form action="{% url 'like' %}" method="post" data-like-form>
+                            {% csrf_token %}
+                            <input type="hidden" name="post_id" value="{{ post.id }}">
+                            <button
+                                class="icon-button {% if logged_user in post.liked_by.all %}is-liked{% endif %}"
+                                type="submit"
+                                data-like-button
+                                aria-pressed="{% if logged_user in post.liked_by.all %}true{% else %}false{% endif %}"
+                                title="{% if logged_user in post.liked_by.all %}Unlike this post{% else %}Like this post{% endif %}"
+                            >
+                                <img
+                                    src="{% if logged_user in post.liked_by.all %}{% static 'users/images/heart.png' %}{% else %}{% static 'users/images/heart2.png' %}{% endif %}"
+                                    data-liked-src="{% static 'users/images/heart.png' %}"
+                                    data-unliked-src="{% static 'users/images/heart2.png' %}"
+                                    alt=""
+                                >
+                                <span class="sr-only">Like post</span>
+                            </button>
+                        </form>
+
+                        <button
+                            class="icon-button"
+                            type="button"
+                            data-comments-toggle
+                            data-comments-target="comments-{{ post.id }}"
+                            aria-controls="comments-{{ post.id }}"
+                            aria-expanded="false"
+                            title="View comments"
+                        >
+                            <img src="{% static 'users/images/chat.png' %}" alt="">
+                            <span class="sr-only">View comments</span>
+                        </button>
+
+                        <button
+                            class="icon-button"
+                            type="button"
+                            data-share-button
+                            data-share-url="{{ request.scheme }}://{{ request.get_host }}{% url 'feed' %}#post-{{ post.id }}"
+                            title="Copy post link"
+                        >
+                            <img src="{% static 'users/images/share.png' %}" alt="">
+                            <span class="sr-only">Share post</span>
+                        </button>
+
+                    </div>
+
+                    {% with like_count=post.liked_by.count %}
+                        <p class="like-count" data-like-count="{{ post.id }}" {% if not like_count %}hidden{% endif %}>
+                            {% if like_count %}{{ like_count }} like{{ like_count|pluralize }}{% endif %}
+                        </p>
+                    {% endwith %}
+
+                    <div class="post-copy">
+                        <h2>{{ post.title }}</h2>
+                        {% if post.caption %}
+                            <p>{{ post.caption|linebreaksbr }}</p>
+                        {% endif %}
+                    </div>
+
+                    <section class="comments" id="comments-{{ post.id }}" aria-label="Comments for {{ post.title }}">
+                        <div class="comment-list">
+                            {% for comment in post.comments.all %}
+                                <p class="comment" {% if forloop.counter > 3 %}hidden data-extra-comment{% endif %}>
+                                    <strong>{{ comment.posted_by }}</strong>
+                                    <span>{{ comment.body }}</span>
+                                </p>
+                            {% empty %}
+                                <p class="muted">No comments yet.</p>
+                            {% endfor %}
+                        </div>
+
+                        {% with hidden_count=post.comments.count|add:"-3" %}
+                            {% if hidden_count > 0 %}
+                                <button
+                                    class="comments-expand"
+                                    type="button"
+                                    data-comments-toggle
+                                    data-comments-target="comments-{{ post.id }}"
+                                    aria-controls="comments-{{ post.id }}"
+                                    aria-expanded="false"
+                                >
+                                    View all {{ post.comments.count }} comments
+                                </button>
+                            {% endif %}
+                        {% endwith %}
+
+                        <form method="post" class="comment-form" data-busy-form>
+                            {% csrf_token %}
+                            <input type="hidden" name="post_id" value="{{ post.id }}">
+                            <textarea class="comment-input" name="body" rows="1" placeholder="Add a comment..." data-autogrow required></textarea>
+                            <button class="button-secondary" type="submit">Post</button>
+                        </form>
+                    </section>
+                </div>
+            </article>
+        {% empty %}
+            <div class="empty-state">
+                <h2>No posts yet</h2>
+                <p>Share the first photo and start the feed.</p>
+                <a class="button-primary" href="{% url 'create' %}">Create a post</a>
+            </div>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}

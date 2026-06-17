@@ -1,0 +1,13 @@
+<article class="user-card">
+    <a class="user-card__identity" href="{% url 'profile_detail' card_user.username %}" aria-label="Open {{ card_user.username }} profile">
+        {% if card_user.profile.photo %}
+            <img class="avatar" src="{{ card_user.profile.photo.url }}" alt="{{ card_user.username }} profile photo">
+        {% else %}
+            <span class="avatar avatar--fallback" aria-hidden="true">{{ card_user.username|first|upper }}</span>
+        {% endif %}
+        <div class="user-card__copy">
+            <h3>{{ card_user.username }}</h3>
+        </div>
+    </a>
+    <a class="button-secondary user-card__action" href="{% url 'profile_detail' card_user.username %}">View</a>
+</article>

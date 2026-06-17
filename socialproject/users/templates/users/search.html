@@ -1,0 +1,50 @@
+{% extends 'users/base.html' %}
+
+{% block title %}Discover People | Photo App{% endblock %}
+
+{% block body %}
+<section class="page-shell discover-shell">
+    <header class="page-header discover-header">
+        <div>
+            <p class="eyebrow">Discover</p>
+            <h1>Search for friends</h1>
+            <p>Search by username and open a profile.</p>
+        </div>
+    </header>
+
+    <form class="search-panel discover-search" action="{% url 'search_users' %}" method="get">
+        <input class="field-input" type="search" name="q" value="{{ query }}" placeholder="Search usernames" aria-label="Search usernames">
+        <button class="button-primary discover-search__button" type="submit">Search</button>
+    </form>
+
+    {% if query %}
+        <div class="section-heading">
+            <h2>Results for "{{ query }}"</h2>
+        </div>
+        <div class="user-grid">
+            {% for found_user in users %}
+                {% include "users/user_card.html" with card_user=found_user %}
+            {% empty %}
+                <div class="empty-state">
+                    <h2>No users found</h2>
+                    <p>Try another username or name.</p>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="section-heading">
+            <h2>Recently joined</h2>
+        </div>
+        <div class="user-grid">
+            {% for found_user in suggestions %}
+                {% include "users/user_card.html" with card_user=found_user %}
+            {% empty %}
+                <div class="empty-state">
+                    <h2>No suggestions yet</h2>
+                    <p>New people will appear here after they register.</p>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+</section>
+{% endblock %}
